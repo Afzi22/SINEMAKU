@@ -1,0 +1,8 @@
+services:
+  sinemaku:
+    build: .
+    container_name: sinemaku-app
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./data:/app/data
