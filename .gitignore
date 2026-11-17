@@ -4,3 +4,8 @@ build/
 *.iml
 out/
 data/
+
+# Android Studio config
+*.xml
+android-app/.idea/
+android-app/local.properties
