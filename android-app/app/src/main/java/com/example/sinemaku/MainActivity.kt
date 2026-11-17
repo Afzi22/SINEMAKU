@@ -4,37 +4,45 @@ package com.example.sinemaku
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
-// ========================================
-// WARNA TEMA SINEMAKU
-// ========================================
+// =====================================
+// WARNA APLIKASI
+// =====================================
 
 private val Background = Color(0xFF10121B)
 private val SurfaceDark = Color(0xFF232634)
 private val AccentGold = Color(0xFFF4B44B)
 private val MutedText = Color(0xFFA8AAB8)
 
-// ========================================
-// MODEL DATA FILM
-// ========================================
+// =====================================
+// MODEL FILM SEMENTARA
+// =====================================
 
 data class Movie(
     val id: Int,
@@ -43,64 +51,70 @@ data class Movie(
     val year: Int,
     val rating: Double,
     val description: String,
+    val posterName: String,
     val posterColor: Color
 )
 
-// ========================================
-// DATA FILM SINEMAKU
-// ========================================
+// =====================================
+// DATA FILM
+// =====================================
 
 private val movies = listOf(
     Movie(
-        id = 1,
-        title = "Interstellar",
-        genre = "Sci-Fi",
-        year = 2014,
-        rating = 8.7,
-        description = "Perjalanan luar angkasa untuk mencari rumah baru umat manusia.",
-        posterColor = Color(0xFF36516B)
+        1,
+        "Interstellar",
+        "Sci-Fi",
+        2014,
+        8.7,
+        "Perjalanan luar angkasa untuk mencari rumah baru umat manusia.",
+        "poster_interstellar",
+        Color(0xFF36516B)
     ),
     Movie(
-        id = 2,
-        title = "Inception",
-        genre = "Thriller",
-        year = 2010,
-        rating = 8.8,
-        description = "Misi memasuki mimpi untuk menanamkan sebuah ide.",
-        posterColor = Color(0xFF40566A)
+        2,
+        "Inception",
+        "Thriller",
+        2010,
+        8.8,
+        "Misi memasuki mimpi untuk menanamkan sebuah ide.",
+        "poster_inception",
+        Color(0xFF40566A)
     ),
     Movie(
-        id = 3,
-        title = "The Dark Knight",
-        genre = "Action",
-        year = 2008,
-        rating = 9.0,
-        description = "Batman menghadapi ancaman Joker di Gotham City.",
-        posterColor = Color(0xFF3B414C)
+        3,
+        "The Dark Knight",
+        "Action",
+        2008,
+        9.0,
+        "Batman menghadapi ancaman Joker di Gotham City.",
+        "poster_dark_knight",
+        Color(0xFF3B414C)
     ),
     Movie(
-        id = 4,
-        title = "Dune",
-        genre = "Adventure",
-        year = 2021,
-        rating = 8.0,
-        description = "Perjalanan Paul Atreides di planet Arrakis.",
-        posterColor = Color(0xFF9A6745)
+        4,
+        "Dune",
+        "Adventure",
+        2021,
+        8.0,
+        "Perjalanan Paul Atreides di planet Arrakis.",
+        "poster_dune",
+        Color(0xFF9A6745)
     ),
     Movie(
-        id = 5,
-        title = "The Chronicles of Narnia: Prince Caspian",
-        genre = "Adventure",
-        year = 2008,
-        rating = 6.5,
-        description = "Pevensie bersaudara kembali ke Narnia untuk membantu Pangeran Caspian merebut kembali takhtanya dari Raja Miraz.",
-        posterColor = Color(0xFF356B58)
+        5,
+        "The Chronicles of Narnia: Prince Caspian",
+        "Adventure",
+        2008,
+        6.5,
+        "Pevensie bersaudara kembali ke Narnia untuk membantu Pangeran Caspian.",
+        "poster_narnia_prince_caspian",
+        Color(0xFF356B58)
     )
 )
 
-// ========================================
+// =====================================
 // MAIN ACTIVITY
-// ========================================
+// =====================================
 
 class MainActivity : ComponentActivity() {
 
@@ -121,20 +135,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ========================================
-// HOME SCREEN
-// ========================================
+// =====================================
+// HOME SCREEN + SCROLLING
+// =====================================
 
 @Composable
 fun SinemakuHomeScreen() {
 
-    var searchQuery by remember {
+    var searchQuery by rememberSaveable {
         mutableStateOf("")
     }
 
-    var selectedGenre by remember {
+    var selectedGenre by rememberSaveable {
         mutableStateOf("All")
     }
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     val genres = listOf(
         "All",
@@ -163,114 +180,174 @@ fun SinemakuHomeScreen() {
         matchesSearch && matchesGenre
     }
 
-    LazyColumn(
+    val showBackToTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 ||
+                    listState.firstVisibleItemScrollOffset > 250
+        }
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Background),
-
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = 24.dp,
-            bottom = 32.dp
-        ),
-
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+            .background(Background)
     ) {
 
-        item {
-            HeaderSection()
-        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
 
-        item {
-            SearchSection(
-                query = searchQuery,
-                onQueryChange = {
-                    searchQuery = it
-                }
-            )
-        }
+            state = listState,
 
-        item {
-            FeaturedMovieSection(
-                movie = movies.first()
-            )
-        }
+            userScrollEnabled = true,
 
-        item {
-            Column(
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
-            ) {
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = 24.dp,
+                bottom = 90.dp
+            ),
 
-                Text(
-                    text = "Explore Genres",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            verticalArrangement =
+                Arrangement.spacedBy(20.dp)
+        ) {
 
-                GenreSection(
-                    genres = genres,
-                    selectedGenre = selectedGenre,
-                    onGenreSelected = {
-                        selectedGenre = it
+            item(key = "header") {
+                HeaderSection()
+            }
+
+            item(key = "search") {
+                SearchSection(
+                    query = searchQuery,
+                    onQueryChange = {
+                        searchQuery = it
                     }
                 )
             }
+
+            item(key = "featured") {
+                FeaturedMovieSection(
+                    movie = movies.first()
+                )
+            }
+
+            item(key = "genres") {
+                Column(
+                    verticalArrangement =
+                        Arrangement.spacedBy(12.dp)
+                ) {
+
+                    Text(
+                        text = "Explore Genres",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    GenreSection(
+                        genres = genres,
+                        selectedGenre = selectedGenre,
+                        onGenreSelected = {
+                            selectedGenre = it
+                        }
+                    )
+                }
+            }
+
+            item(key = "popular_title") {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+                    verticalAlignment =
+                        Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = "Popular Movies",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "${filteredMovies.size} movies",
+                        color = MutedText,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+
+            if (filteredMovies.isEmpty()) {
+
+                item(key = "empty") {
+                    Text(
+                        text = "Film tidak ditemukan.",
+                        color = MutedText,
+                        modifier = Modifier.padding(
+                            vertical = 24.dp
+                        )
+                    )
+                }
+
+            } else {
+
+                items(
+                    items = filteredMovies,
+                    key = { movie ->
+                        "movie_${movie.id}"
+                    }
+                ) { movie ->
+
+                    ModernMovieCard(movie)
+                }
+            }
+
+            item(key = "scroll_end") {
+                Text(
+                    text = "You've reached the end",
+                    color = MutedText,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    textAlign =
+                        androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
         }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement =
-                    Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        // Tombol kembali ke atas.
+        if (showBackToTop) {
+
+            FloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(20.dp),
+
+                containerColor = AccentGold,
+                contentColor = Background
             ) {
 
                 Text(
-                    text = "Popular Movies",
-                    color = Color.White,
-                    fontSize = 22.sp,
+                    text = "↑",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
-
-                Text(
-                    text = "${filteredMovies.size} movies",
-                    color = MutedText,
-                    fontSize = 13.sp
-                )
-            }
-        }
-
-        if (filteredMovies.isEmpty()) {
-
-            item {
-                Text(
-                    text = "Film tidak ditemukan.",
-                    color = MutedText,
-                    modifier = Modifier.padding(
-                        vertical = 24.dp
-                    )
-                )
-            }
-
-        } else {
-
-            items(
-                items = filteredMovies,
-                key = { it.id }
-            ) { movie ->
-
-                ModernMovieCard(movie)
             }
         }
     }
 }
 
-// ========================================
+// =====================================
 // HEADER
-// ========================================
+// =====================================
 
 @Composable
 fun HeaderSection() {
@@ -295,9 +372,9 @@ fun HeaderSection() {
     }
 }
 
-// ========================================
-// SEARCH BAR
-// ========================================
+// =====================================
+// SEARCH
+// =====================================
 
 @Composable
 fun SearchSection(
@@ -308,6 +385,7 @@ fun SearchSection(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
+
         modifier = Modifier.fillMaxWidth(),
 
         placeholder = {
@@ -315,7 +393,12 @@ fun SearchSection(
         },
 
         singleLine = true,
+
         shape = RoundedCornerShape(16.dp),
+
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
 
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = AccentGold,
@@ -326,9 +409,9 @@ fun SearchSection(
     )
 }
 
-// ========================================
+// =====================================
 // FEATURED MOVIE
-// ========================================
+// =====================================
 
 @Composable
 fun FeaturedMovieSection(movie: Movie) {
@@ -336,18 +419,28 @@ fun FeaturedMovieSection(movie: Movie) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp)
+            .height(220.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF32475E),
-                        Color(0xFF151A27),
-                        Background
+            .background(SurfaceDark)
+    ) {
+
+        MoviePoster(
+            movie = movie,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.12f),
+                            Color.Black.copy(alpha = 0.85f)
+                        )
                     )
                 )
-            )
-    ) {
+        )
 
         Column(
             modifier = Modifier
@@ -389,9 +482,9 @@ fun FeaturedMovieSection(movie: Movie) {
     }
 }
 
-// ========================================
-// FILTER GENRE
-// ========================================
+// =====================================
+// GENRE FILTER
+// =====================================
 
 @Composable
 fun GenreSection(
@@ -407,11 +500,8 @@ fun GenreSection(
 
         items(genres) { genre ->
 
-            val selected =
-                genre == selectedGenre
-
             FilterChip(
-                selected = selected,
+                selected = genre == selectedGenre,
 
                 onClick = {
                     onGenreSelected(genre)
@@ -433,9 +523,72 @@ fun GenreSection(
     }
 }
 
-// ========================================
+// =====================================
+// POSTER
+// =====================================
+
+@Composable
+fun MoviePoster(
+    movie: Movie,
+    modifier: Modifier = Modifier
+) {
+
+    val context = LocalContext.current
+
+    val posterRes = remember(
+        movie.posterName,
+        context
+    ) {
+        context.resources.getIdentifier(
+            movie.posterName,
+            "drawable",
+            context.packageName
+        )
+    }
+
+    if (posterRes != 0) {
+
+        Image(
+            painter = painterResource(
+                id = posterRes
+            ),
+
+            contentDescription =
+                "Poster ${movie.title}",
+
+            modifier = modifier,
+
+            contentScale = ContentScale.Crop
+        )
+
+    } else {
+
+        Box(
+            modifier = modifier.background(
+                Brush.verticalGradient(
+                    listOf(
+                        movie.posterColor,
+                        Color(0xFF11141C)
+                    )
+                )
+            ),
+
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = movie.title.take(1),
+                color = Color.White,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Black
+            )
+        }
+    }
+}
+
+// =====================================
 // MOVIE CARD
-// ========================================
+// =====================================
 
 @Composable
 fun ModernMovieCard(movie: Movie) {
@@ -462,32 +615,14 @@ fun ModernMovieCard(movie: Movie) {
                 Alignment.CenterVertically
         ) {
 
-            // Poster sementara berbentuk gradasi
+            MoviePoster(
+                movie = movie,
 
-            Box(
                 modifier = Modifier
                     .width(100.dp)
                     .height(140.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                movie.posterColor,
-                                Color(0xFF11141C)
-                            )
-                        )
-                    ),
-
-                contentAlignment = Alignment.Center
-            ) {
-
-                Text(
-                    text = movie.title.take(1),
-                    color = Color.White,
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Black
-                )
-            }
+            )
 
             Column(
                 modifier = Modifier.weight(1f),
