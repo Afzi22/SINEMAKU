@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import com.example.sinemaku.ui.model.MovieUiModel
+import com.example.sinemaku.ui.model.MovieSampleData
 
 // =====================================
 // WARNA APLIKASI
@@ -44,76 +46,20 @@ private val AccentGold = Color(0xFFF4B44B)
 private val MutedText = Color(0xFFA8AAB8)
 
 // =====================================
-// MODEL FILM SEMENTARA
+// SUMBER DATA DOMAIN FAWWAZ
 // =====================================
 
-data class Movie(
-    val id: Int,
-    val title: String,
-    val genre: String,
-    val year: Int,
-    val rating: Double,
-    val description: String,
-    val posterName: String,
-    val posterColor: Color
-)
+private val movies: List<MovieUiModel>
+    get() = MovieSampleData.movies
 
-// =====================================
-// DATA FILM
-// =====================================
-
-private val movies = listOf(
-    Movie(
-        id = 1,
-        title = "Interstellar",
-        genre = "Sci-Fi",
-        year = 2014,
-        rating = 8.7,
-        description = "Perjalanan luar angkasa untuk mencari rumah baru umat manusia.",
-        posterName = "poster_interstellar",
-        posterColor = Color(0xFF36516B)
-    ),
-    Movie(
-        id = 2,
-        title = "Inception",
-        genre = "Thriller",
-        year = 2010,
-        rating = 8.8,
-        description = "Misi memasuki mimpi untuk menanamkan sebuah ide.",
-        posterName = "poster_inception",
-        posterColor = Color(0xFF40566A)
-    ),
-    Movie(
-        id = 3,
-        title = "The Dark Knight",
-        genre = "Action",
-        year = 2008,
-        rating = 9.0,
-        description = "Batman menghadapi ancaman Joker di Gotham City.",
-        posterName = "poster_dark_knight",
-        posterColor = Color(0xFF3B414C)
-    ),
-    Movie(
-        id = 4,
-        title = "Dune",
-        genre = "Adventure",
-        year = 2021,
-        rating = 8.0,
-        description = "Perjalanan Paul Atreides di planet Arrakis.",
-        posterName = "poster_dune",
-        posterColor = Color(0xFF9A6745)
-    ),
-    Movie(
-        id = 5,
-        title = "The Chronicles of Narnia: Prince Caspian",
-        genre = "Adventure",
-        year = 2008,
-        rating = 6.5,
-        description = "Pevensie bersaudara kembali ke Narnia untuk membantu Pangeran Caspian.",
-        posterName = "poster_narnia_prince_caspian",
-        posterColor = Color(0xFF356B58)
-    )
-)
+private fun posterFallbackColor(id: String): Color = when (id) {
+    "FILM-001" -> Color(0xFF36516B)
+    "FILM-002" -> Color(0xFF40566A)
+    "FILM-003" -> Color(0xFF3B414C)
+    "FILM-004" -> Color(0xFF9A6745)
+    "FILM-005" -> Color(0xFF356B58)
+    else -> SurfaceDark
+}
 
 // =====================================
 // MAIN ACTIVITY
@@ -148,7 +94,7 @@ fun SinemakuApp() {
     // Simpan ID agar bisa dipulihkan setelah
     // rotasi layar atau pembuatan ulang Activity.
     var selectedMovieId by rememberSaveable {
-        mutableStateOf<Int?>(null)
+        mutableStateOf<String?>(null)
     }
 
     val selectedMovie = movies.firstOrNull {
@@ -210,7 +156,7 @@ fun SinemakuApp() {
 
 @Composable
 fun SinemakuHomeScreen(
-    onMovieClick: (Movie) -> Unit
+    onMovieClick: (MovieUiModel) -> Unit
 ) {
 
     var searchQuery by rememberSaveable {
@@ -224,13 +170,10 @@ fun SinemakuHomeScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val genres = listOf(
-        "All",
-        "Action",
-        "Sci-Fi",
-        "Thriller",
-        "Adventure"
-    )
+    val genres = listOf("All") + movies
+        .flatMap { it.genres }
+        .distinct()
+        .sorted()
 
     val filteredMovies = movies.filter { movie ->
         val matchesSearch =
@@ -238,14 +181,14 @@ fun SinemakuHomeScreen(
                 searchQuery,
                 ignoreCase = true
             ) ||
-                    movie.genre.contains(
+                    movie.genreText.contains(
                         searchQuery,
                         ignoreCase = true
                     )
 
         val matchesGenre =
             selectedGenre == "All" ||
-                    movie.genre == selectedGenre
+                    movie.genres.any { it.equals(selectedGenre, ignoreCase = true) }
 
         matchesSearch && matchesGenre
     }
@@ -456,7 +399,7 @@ fun SearchSection(
 
 @Composable
 fun FeaturedMovieSection(
-    movie: Movie,
+    movie: MovieUiModel,
     onClick: () -> Unit
 ) {
     Box(
@@ -506,13 +449,13 @@ fun FeaturedMovieSection(
             )
 
             Text(
-                text = "${movie.year} • ${movie.genre} • ★ ${movie.rating}",
+                text = "${movie.year} • ${movie.genreText} • ★ ${movie.rating}",
                 color = Color.LightGray,
                 fontSize = 13.sp
             )
 
             Text(
-                text = movie.description,
+                text = movie.synopsis,
                 color = Color.White,
                 fontSize = 13.sp,
                 maxLines = 2,
@@ -561,7 +504,7 @@ fun GenreSection(
 
 @Composable
 fun MoviePoster(
-    movie: Movie,
+    movie: MovieUiModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -586,7 +529,7 @@ fun MoviePoster(
             modifier = modifier.background(
                 Brush.verticalGradient(
                     listOf(
-                        movie.posterColor,
+                        posterFallbackColor(movie.id),
                         Color(0xFF11141C)
                     )
                 )
@@ -609,7 +552,7 @@ fun MoviePoster(
 
 @Composable
 fun ModernMovieCard(
-    movie: Movie,
+    movie: MovieUiModel,
     onClick: () -> Unit
 ) {
     Card(
@@ -649,7 +592,7 @@ fun ModernMovieCard(
                 )
 
                 Text(
-                    text = "${movie.year} • ${movie.genre}",
+                    text = "${movie.year} • ${movie.genreText}",
                     color = MutedText,
                     fontSize = 13.sp
                 )
@@ -662,7 +605,7 @@ fun ModernMovieCard(
                 )
 
                 Text(
-                    text = movie.description,
+                    text = movie.synopsis,
                     color = Color.LightGray,
                     fontSize = 12.sp,
                     maxLines = 3,
@@ -679,7 +622,7 @@ fun ModernMovieCard(
 
 @Composable
 fun MovieDetailScreen(
-    movie: Movie,
+    movie: MovieUiModel,
     onBackClick: () -> Unit
 ) {
     Column(
@@ -751,7 +694,7 @@ fun MovieDetailScreen(
                     )
 
                     Text(
-                        text = "${movie.year} • ${movie.genre}",
+                        text = "${movie.year} • ${movie.genreText}",
                         color = MutedText,
                         fontSize = 15.sp
                     )
@@ -761,6 +704,18 @@ fun MovieDetailScreen(
                         color = AccentGold,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "Durasi: ${movie.durationText}",
+                        color = Color.LightGray,
+                        fontSize = 14.sp
+                    )
+
+                    Text(
+                        text = "Sutradara: ${movie.director}",
+                        color = Color.LightGray,
+                        fontSize = 14.sp
                     )
                 }
             }
@@ -783,7 +738,7 @@ fun MovieDetailScreen(
                     )
 
                     Text(
-                        text = movie.description,
+                        text = movie.synopsis,
                         color = Color.LightGray,
                         fontSize = 15.sp,
                         lineHeight = 24.sp
@@ -793,3 +748,5 @@ fun MovieDetailScreen(
         }
     }
 }
+
+
