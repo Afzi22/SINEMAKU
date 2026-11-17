@@ -1,51 +1,66 @@
 package service
 
 import model.Film
+import model.Tayangan
 import java.io.File
 
 class CsvPersistence(private val filePath: String = "katalog_film.csv") {
 
-    // Fungsi untuk menyimpan 10 data film ke file CSV
-    fun simpanKeFile(films: List<Film>) {
+    // Menyimpan data daftar tayangan ke file CSV
+    fun simpanKeCsv(daftarTayangan: List<Tayangan>) {
         val file = File(filePath)
         val sb = StringBuilder()
 
         // Header CSV
-        sb.append("id,judul,tahun,genre,rating\n")
+        sb.append("id,judul,tahunRilis,genre,durasiMenit,sutradara,kategori\n")
 
-        for (film in films) {
-            sb.append("${film.id},${film.judul},${film.tahun},${film.genre},${film.rating}\n")
+        for (t in daftarTayangan) {
+            val genreString = t.genre.joinToString(";") // Menggabungkan list genre dengan pemisah titik koma
+            val durasi = if (t is Film) t.durasiMenit else 0
+            val sutradara = if (t is Film) t.sutradara else "-"
+
+            sb.append("${t.id},")
+                .append("\"${t.judul}\",")
+                .append("${t.tahunRilis},")
+                .append("\"$genreString\",")
+                .append("$durasi,")
+                .append("\"$sutradara\",")
+                .append("${t.kategori()}\n")
         }
 
         file.writeText(sb.toString())
-        println("Berhasil menyimpan data ke file: $filePath")
     }
 
-    // Fungsi untuk memuat data film dari file CSV
-    fun muatDariFile(): List<Film> {
+    // Memuat kembali data dari file CSV ke dalam sistem
+    fun muatDariCsv(): List<Tayangan> {
         val file = File(filePath)
-        val films = mutableListOf<Film>()
+        if (!file.exists()) return emptyList()
 
-        if (!file.exists()) {
-            return films
-        }
+        val hasil = mutableListOf<Tayangan>()
+        val barisList = file.readLines()
 
-        val lines = file.readLines()
-        for (i in 1 until lines.size) {
-            val line = lines[i]
-            val parts = line.split(",")
-            if (parts.size == 5) {
-                val film = Film(
-                    id = parts[0],
-                    judul = parts[1],
-                    tahun = parts[2].toInt(),
-                    genre = parts[3],
-                    rating = parts[4].toDouble()
-                )
-                films.add(film)
+        // Lewati baris pertama (header) jika file tidak kosong
+        for (i in 1 until barisList.size) {
+            val baris = barisList[i]
+            // Parser sederhana untuk memisahkan kolom CSV
+            val kolom = baris.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)".toRegex())
+
+            if (kolom.size >= 7) {
+                val id = kolom[0].trim()
+                val judul = kolom[1].trim().removeSurrounding("\"")
+                val tahunRilis = kolom[2].trim().toIntOrNull() ?: 2024
+                val genre = kolom[3].trim().removeSurrounding("\"").split(";")
+                val durasiMenit = kolom[4].trim().toIntOrNull() ?: 120
+                val sutradara = kolom[5].trim().removeSurrounding("\"")
+                val kategori = kolom[6].trim()
+
+                if (kategori == "FILM") {
+                    hasil.add(Film(id, judul, tahunRilis, genre, durasiMenit, sutradara))
+                }
+                // Jika nanti ada Serial atau Dokumenter, bisa ditambahkan percabangan di sini
             }
         }
-        println("Berhasil memuat ${films.size} data film dari file: $filePath")
-        return films
+
+        return hasil
     }
 }
