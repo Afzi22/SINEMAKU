@@ -4,8 +4,10 @@ package com.example.sinemaku
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,54 +64,54 @@ data class Movie(
 
 private val movies = listOf(
     Movie(
-        1,
-        "Interstellar",
-        "Sci-Fi",
-        2014,
-        8.7,
-        "Perjalanan luar angkasa untuk mencari rumah baru umat manusia.",
-        "poster_interstellar",
-        Color(0xFF36516B)
+        id = 1,
+        title = "Interstellar",
+        genre = "Sci-Fi",
+        year = 2014,
+        rating = 8.7,
+        description = "Perjalanan luar angkasa untuk mencari rumah baru umat manusia.",
+        posterName = "poster_interstellar",
+        posterColor = Color(0xFF36516B)
     ),
     Movie(
-        2,
-        "Inception",
-        "Thriller",
-        2010,
-        8.8,
-        "Misi memasuki mimpi untuk menanamkan sebuah ide.",
-        "poster_inception",
-        Color(0xFF40566A)
+        id = 2,
+        title = "Inception",
+        genre = "Thriller",
+        year = 2010,
+        rating = 8.8,
+        description = "Misi memasuki mimpi untuk menanamkan sebuah ide.",
+        posterName = "poster_inception",
+        posterColor = Color(0xFF40566A)
     ),
     Movie(
-        3,
-        "The Dark Knight",
-        "Action",
-        2008,
-        9.0,
-        "Batman menghadapi ancaman Joker di Gotham City.",
-        "poster_dark_knight",
-        Color(0xFF3B414C)
+        id = 3,
+        title = "The Dark Knight",
+        genre = "Action",
+        year = 2008,
+        rating = 9.0,
+        description = "Batman menghadapi ancaman Joker di Gotham City.",
+        posterName = "poster_dark_knight",
+        posterColor = Color(0xFF3B414C)
     ),
     Movie(
-        4,
-        "Dune",
-        "Adventure",
-        2021,
-        8.0,
-        "Perjalanan Paul Atreides di planet Arrakis.",
-        "poster_dune",
-        Color(0xFF9A6745)
+        id = 4,
+        title = "Dune",
+        genre = "Adventure",
+        year = 2021,
+        rating = 8.0,
+        description = "Perjalanan Paul Atreides di planet Arrakis.",
+        posterName = "poster_dune",
+        posterColor = Color(0xFF9A6745)
     ),
     Movie(
-        5,
-        "The Chronicles of Narnia: Prince Caspian",
-        "Adventure",
-        2008,
-        6.5,
-        "Pevensie bersaudara kembali ke Narnia untuk membantu Pangeran Caspian.",
-        "poster_narnia_prince_caspian",
-        Color(0xFF356B58)
+        id = 5,
+        title = "The Chronicles of Narnia: Prince Caspian",
+        genre = "Adventure",
+        year = 2008,
+        rating = 6.5,
+        description = "Pevensie bersaudara kembali ke Narnia untuk membantu Pangeran Caspian.",
+        posterName = "poster_narnia_prince_caspian",
+        posterColor = Color(0xFF356B58)
     )
 )
 
@@ -129,18 +132,86 @@ class MainActivity : ComponentActivity() {
                     surface = SurfaceDark
                 )
             ) {
-                SinemakuHomeScreen()
+                SinemakuApp()
             }
         }
     }
 }
 
 // =====================================
-// HOME SCREEN + SCROLLING
+// NAVIGASI APLIKASI
 // =====================================
 
 @Composable
-fun SinemakuHomeScreen() {
+fun SinemakuApp() {
+
+    // Simpan ID agar bisa dipulihkan setelah
+    // rotasi layar atau pembuatan ulang Activity.
+    var selectedMovieId by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
+
+    val selectedMovie = movies.firstOrNull {
+        it.id == selectedMovieId
+    }
+
+    // Tangani tombol Back fisik/sistem Android
+    // saat halaman detail sedang terbuka.
+    BackHandler(enabled = selectedMovie != null) {
+        selectedMovieId = null
+    }
+
+    // Kedua layar tetap berada di composition.
+    // Home disembunyikan saat detail terbuka,
+    // sehingga posisi scroll dan filter tetap ada.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Background)
+    ) {
+
+        androidx.compose.runtime.CompositionLocalProvider(
+            androidx.compose.ui.platform.LocalLayoutDirection provides
+                    androidx.compose.ui.unit.LayoutDirection.Ltr
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+
+                // Home tetap dipertahankan di composition.
+                // Saat detail terbuka, Home tidak menerima
+                // input karena detail menutup seluruh layar.
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    SinemakuHomeScreen(
+                        onMovieClick = { movie ->
+                            selectedMovieId = movie.id
+                        }
+                    )
+                }
+
+                if (selectedMovie != null) {
+                    MovieDetailScreen(
+                        movie = selectedMovie,
+                        onBackClick = {
+                            selectedMovieId = null
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+// =====================================
+// HOME SCREEN
+// =====================================
+
+@Composable
+fun SinemakuHomeScreen(
+    onMovieClick: (Movie) -> Unit
+) {
 
     var searchQuery by rememberSaveable {
         mutableStateOf("")
@@ -162,7 +233,6 @@ fun SinemakuHomeScreen() {
     )
 
     val filteredMovies = movies.filter { movie ->
-
         val matchesSearch =
             movie.title.contains(
                 searchQuery,
@@ -195,20 +265,15 @@ fun SinemakuHomeScreen() {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-
             state = listState,
-
             userScrollEnabled = true,
-
             contentPadding = PaddingValues(
                 start = 20.dp,
                 end = 20.dp,
                 top = 24.dp,
                 bottom = 90.dp
             ),
-
-            verticalArrangement =
-                Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
             item(key = "header") {
@@ -226,16 +291,17 @@ fun SinemakuHomeScreen() {
 
             item(key = "featured") {
                 FeaturedMovieSection(
-                    movie = movies.first()
+                    movie = movies.first(),
+                    onClick = {
+                        onMovieClick(movies.first())
+                    }
                 )
             }
 
             item(key = "genres") {
                 Column(
-                    verticalArrangement =
-                        Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-
                     Text(
                         text = "Explore Genres",
                         color = Color.White,
@@ -254,15 +320,11 @@ fun SinemakuHomeScreen() {
             }
 
             item(key = "popular_title") {
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween,
-                    verticalAlignment =
-                        Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
                         text = "Popular Movies",
                         color = Color.White,
@@ -279,27 +341,24 @@ fun SinemakuHomeScreen() {
             }
 
             if (filteredMovies.isEmpty()) {
-
                 item(key = "empty") {
                     Text(
                         text = "Film tidak ditemukan.",
                         color = MutedText,
-                        modifier = Modifier.padding(
-                            vertical = 24.dp
-                        )
+                        modifier = Modifier.padding(vertical = 24.dp)
                     )
                 }
-
             } else {
-
                 items(
                     items = filteredMovies,
-                    key = { movie ->
-                        "movie_${movie.id}"
-                    }
+                    key = { movie -> "movie_${movie.id}" }
                 ) { movie ->
-
-                    ModernMovieCard(movie)
+                    ModernMovieCard(
+                        movie = movie,
+                        onClick = {
+                            onMovieClick(movie)
+                        }
+                    )
                 }
             }
 
@@ -308,33 +367,25 @@ fun SinemakuHomeScreen() {
                     text = "You've reached the end",
                     color = MutedText,
                     fontSize = 12.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    textAlign =
-                        androidx.compose.ui.text.style.TextAlign.Center
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
                 )
             }
         }
 
-        // Tombol kembali ke atas.
         if (showBackToTop) {
-
             FloatingActionButton(
                 onClick = {
                     coroutineScope.launch {
                         listState.animateScrollToItem(0)
                     }
                 },
-
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(20.dp),
-
                 containerColor = AccentGold,
                 contentColor = Background
             ) {
-
                 Text(
                     text = "↑",
                     fontSize = 24.sp,
@@ -351,12 +402,9 @@ fun SinemakuHomeScreen() {
 
 @Composable
 fun HeaderSection() {
-
     Column(
-        verticalArrangement =
-            Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-
         Text(
             text = "SINEMAKU",
             fontSize = 30.sp,
@@ -381,25 +429,18 @@ fun SearchSection(
     query: String,
     onQueryChange: (String) -> Unit
 ) {
-
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-
         modifier = Modifier.fillMaxWidth(),
-
         placeholder = {
             Text("Cari film atau genre...")
         },
-
         singleLine = true,
-
         shape = RoundedCornerShape(16.dp),
-
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Search
         ),
-
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = AccentGold,
             unfocusedBorderColor = Color(0xFF454957),
@@ -414,16 +455,18 @@ fun SearchSection(
 // =====================================
 
 @Composable
-fun FeaturedMovieSection(movie: Movie) {
-
+fun FeaturedMovieSection(
+    movie: Movie,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(220.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(SurfaceDark)
+            .clickable(onClick = onClick)
     ) {
-
         MoviePoster(
             movie = movie,
             modifier = Modifier.fillMaxSize()
@@ -446,11 +489,8 @@ fun FeaturedMovieSection(movie: Movie) {
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(20.dp),
-
-            verticalArrangement =
-                Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             Text(
                 text = "FEATURED MOVIE",
                 color = AccentGold,
@@ -492,39 +532,31 @@ fun GenreSection(
     selectedGenre: String,
     onGenreSelected: (String) -> Unit
 ) {
-
     LazyRow(
-        horizontalArrangement =
-            Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-
         items(genres) { genre ->
-
             FilterChip(
                 selected = genre == selectedGenre,
-
                 onClick = {
                     onGenreSelected(genre)
                 },
-
                 label = {
                     Text(genre)
                 },
-
-                colors =
-                    FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = AccentGold,
-                        selectedLabelColor = Background,
-                        containerColor = SurfaceDark,
-                        labelColor = Color.White
-                    )
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = AccentGold,
+                    selectedLabelColor = Background,
+                    containerColor = SurfaceDark,
+                    labelColor = Color.White
+                )
             )
         }
     }
 }
 
 // =====================================
-// POSTER
+// POSTER FILM
 // =====================================
 
 @Composable
@@ -532,13 +564,9 @@ fun MoviePoster(
     movie: Movie,
     modifier: Modifier = Modifier
 ) {
-
     val context = LocalContext.current
 
-    val posterRes = remember(
-        movie.posterName,
-        context
-    ) {
+    val posterRes = remember(movie.posterName, context) {
         context.resources.getIdentifier(
             movie.posterName,
             "drawable",
@@ -547,22 +575,13 @@ fun MoviePoster(
     }
 
     if (posterRes != 0) {
-
         Image(
-            painter = painterResource(
-                id = posterRes
-            ),
-
-            contentDescription =
-                "Poster ${movie.title}",
-
+            painter = painterResource(id = posterRes),
+            contentDescription = "Poster ${movie.title}",
             modifier = modifier,
-
             contentScale = ContentScale.Crop
         )
-
     } else {
-
         Box(
             modifier = modifier.background(
                 Brush.verticalGradient(
@@ -572,10 +591,8 @@ fun MoviePoster(
                     )
                 )
             ),
-
             contentAlignment = Alignment.Center
         ) {
-
             Text(
                 text = movie.title.take(1),
                 color = Color.White,
@@ -587,37 +604,31 @@ fun MoviePoster(
 }
 
 // =====================================
-// MOVIE CARD
+// KARTU FILM (BISA DIKLIK)
 // =====================================
 
 @Composable
-fun ModernMovieCard(movie: Movie) {
-
+fun ModernMovieCard(
+    movie: Movie,
+    onClick: () -> Unit
+) {
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-
         shape = RoundedCornerShape(18.dp),
-
         colors = CardDefaults.cardColors(
             containerColor = SurfaceDark
         )
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-
-            horizontalArrangement =
-                Arrangement.spacedBy(16.dp),
-
-            verticalAlignment =
-                Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
             MoviePoster(
                 movie = movie,
-
                 modifier = Modifier
                     .width(100.dp)
                     .height(140.dp)
@@ -626,11 +637,8 @@ fun ModernMovieCard(movie: Movie) {
 
             Column(
                 modifier = Modifier.weight(1f),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-
                 Text(
                     text = movie.title,
                     color = Color.White,
@@ -660,6 +668,127 @@ fun ModernMovieCard(movie: Movie) {
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+        }
+    }
+}
+
+// =====================================
+// HALAMAN DETAIL FILM
+// =====================================
+
+@Composable
+fun MovieDetailScreen(
+    movie: Movie,
+    onBackClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Background)
+    ) {
+
+        // Header tetap terlihat saat isi detail di-scroll.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 16.dp,
+                    bottom = 12.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            TextButton(onClick = onBackClick) {
+                Text(
+                    text = "← Back",
+                    color = AccentGold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+
+            Text(
+                text = "Movie Details",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            userScrollEnabled = true,
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                bottom = 36.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+
+            item {
+                MoviePoster(
+                    movie = movie,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(340.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                )
+            }
+
+            item {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = movie.title,
+                        color = Color.White,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+
+                    Text(
+                        text = "${movie.year} • ${movie.genre}",
+                        color = MutedText,
+                        fontSize = 15.sp
+                    )
+
+                    Text(
+                        text = "★ ${movie.rating} / 10",
+                        color = AccentGold,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            item {
+                HorizontalDivider(
+                    color = Color(0xFF353947)
+                )
+            }
+
+            item {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Synopsis",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = movie.description,
+                        color = Color.LightGray,
+                        fontSize = 15.sp,
+                        lineHeight = 24.sp
+                    )
+                }
             }
         }
     }
