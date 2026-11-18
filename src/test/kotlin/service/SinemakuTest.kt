@@ -6,55 +6,53 @@ import kotlin.test.*
 
 class SinemakuTest {
 
-    private lateinit var catalogService: CineCatalogService
+    private lateinit var catalogService: KatalogService
 
     @BeforeTest
     fun siapkanData() {
-        catalogService = CineCatalogService()
+        catalogService = KatalogService()
 
-        // Memasukkan 10 data film pilihanmu menggunakan objek Film
-        catalogService.tambahFilm(Film("F001", "Jangan Buang Ibu", 2024, "Drama", 4.7))
-        catalogService.tambahFilm(Film("F002", "Dance of the Damned", 2023, "Horror", 4.3))
-        catalogService.tambahFilm(Film("F003", "Gadis Kretek", 2023, "Drama", 4.9))
-        catalogService.tambahFilm(Film("F004", "Abadi Nan Jaya", 2024, "Action", 4.5))
-        catalogService.tambahFilm(Film("F005", "Sore : Istri dan Masa Depan", 2024, "Romance", 4.8))
-        catalogService.tambahFilm(Film("F006", "Sekawan Limo", 2024, "Comedy", 4.6))
-        catalogService.tambahFilm(Film("F007", "Spiderman : Brand New Day", 2026, "Action", 4.8))
-        catalogService.tambahFilm(Film("F008", "Thor : Love and Thunder", 2022, "Action", 4.2))
-        catalogService.tambahFilm(Film("F009", "Ant-Man", 2023, "Sci-Fi", 4.4))
-        catalogService.tambahFilm(Film("F010", "Boyfriend on Demand", 2025, "Romance", 4.5))
+        // Memasukkan 10 data film pilihanmu menggunakan method tambahTayangan milik Miftah
+        catalogService.tambahTayangan(Film("F001", "Jangan Buang Ibu", 2024, listOf("Drama"), 120, "Sutradara A"))
+        catalogService.tambahTayangan(Film("F002", "Dance of the Damned", 2023, listOf("Horror"), 105, "Sutradara B"))
+        catalogService.tambahTayangan(Film("F003", "Gadis Kretek", 2023, listOf("Drama"), 110, "Kamila Andini"))
+        catalogService.tambahTayangan(Film("F004", "Abadi Nan Jaya", 2024, listOf("Action"), 115, "Sutradara D"))
+        catalogService.tambahTayangan(Film("F005", "Sore : Istri dan Masa Depan", 2024, listOf("Romance"), 100, "Yandy Laurens"))
+        catalogService.tambahTayangan(Film("F006", "Sekawan Limo", 2024, listOf("Comedy"), 110, "Bayu Skak"))
+        catalogService.tambahTayangan(Film("F007", "Spiderman : Brand New Day", 2026, listOf("Action"), 140, "Marvel"))
+        catalogService.tambahTayangan(Film("F008", "Thor : Love and Thunder", 2022, listOf("Action"), 119, "Taika Waititi"))
+        catalogService.tambahTayangan(Film("F009", "Ant-Man", 2023, listOf("Sci-Fi"), 125, "Peyton Reed"))
+        catalogService.tambahTayangan(Film("F010", "Boyfriend on Demand", 2025, listOf("Romance"), 102, "Sutradara J"))
     }
 
     @Test
-    fun `menambah film dengan ID yang sama harus gagal`() {
+    fun `menambah tayangan dengan ID yang sama harus gagal`() {
         assertFailsWith<DuplikasiIdException> {
-            catalogService.tambahFilm(Film("F001", "Film Lain", 2026, "Action", 4.0))
+            catalogService.tambahTayangan(Film("F001", "Film Lain", 2026, listOf("Action"), 90, "Sutradara X"))
         }
     }
 
     @Test
-    fun `menambahkan film baru berhasil dan masuk ke katalog`() {
-        catalogService.tambahFilm(Film("F011", "Avengers Secret Wars", 2027, "Action", 5.0))
-        assertEquals(11, catalogService.semuaFilm().size)
+    fun `menambahkan tayangan baru berhasil dan masuk ke katalog`() {
+        catalogService.tambahTayangan(Film("F011", "Avengers Secret Wars", 2027, listOf("Action"), 150, "Russo Brothers"))
+        assertEquals(11, catalogService.semuaTayangan().size)
     }
 
     @Test
-    fun `pencarian film tidak membedakan huruf besar dan kecil`() {
-        assertEquals(1, catalogService.cariFilm("gadis kretek").size)
-        assertEquals(0, catalogService.cariFilm("avatar").size)
+    fun `pencarian tayangan berdasarkan keyword tidak membedakan huruf besar dan kecil`() {
+        assertEquals(1, catalogService.cariTayangan("gadis kretek").size)
+        assertEquals(0, catalogService.cariTayangan("avatar").size)
     }
 
     @Test
-    fun `menambahkan film ke watchlist harus berhasil`() {
-        catalogService.tambahKeWatchlist("F003") // Gadis Kretek
-        assertEquals(1, catalogService.lihatWatchlist().size)
-        assertEquals("F003", catalogService.lihatWatchlist().first().id)
+    fun `pencarian berdasarkan ID yang tidak ada mengembalikan null`() {
+        assertNull(catalogService.cariBerdasarkanId("F999"))
     }
 
     @Test
-    fun `memberikan rating di luar rentang yang valid harus ditolak`() {
-        assertFailsWith<InputTidakValidException> {
-            catalogService.beriRating("F001", 6.0)
+    fun `tahun rilis di luar rentang valid harus ditolak`() {
+        assertFailsWith<IllegalArgumentException> {
+            catalogService.tambahTayangan(Film("F012", "Film Masa Depan", 2150, listOf("Sci-Fi"), 100, "Sutradara Z"))
         }
     }
 }

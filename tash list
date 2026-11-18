@@ -1,0 +1,11 @@
+[33m03f3ce7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/service-film[m[33m)[m Merge branch 'feature/testing' of https://github.com/Afzi22/SINEMAKU into develop
+[33md021c06[m feature testing dan penyimpanan
+[33m1429887[m Merge branch 'develop' of https://github.com/Afzi22/SINEMAKU into feature/testing
+[33m07c58dd[m Merge pull request #5 from Afzi22/feature/model
+[33m5df982b[m[33m ([m[1;31morigin/feature/model[m[33m)[m model
+[33maec978d[m Merge branch 'develop' of https://github.com/Afzi22/SINEMAKU into feature/testing
+[33m19389f1[m Merge pull request #3 from Afzi22/feature/UI
+[33m56b0f20[m Merge branch 'develop' of https://github.com/Afzi22/SINEMAKU into feature/testing
+[33me763cda[m Merge branch 'main' of https://github.com/Afzi22/SINEMAKU into develop
+[33md2b0d62[m[33m ([m[1;31morigin/feature/UI[m[33m)[m fix(android): resolve Gradle and resource build errors
+[33mde2a618[m wip(android): initial setup, Gradle configuration pending
