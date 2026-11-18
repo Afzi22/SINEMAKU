@@ -31,6 +31,13 @@ data class MovieUiModel(
     val year: Int
         get() = film.tahunRilis
 
+    // Kategori untuk kebutuhan tampilan Android.
+    val category: String
+        get() = when (film.kategori()) {
+            "FILM" -> "Film"
+            else -> film.kategori()
+        }
+
     // Daftar genre.
     val genres: List<String>
         get() = film.genre
@@ -46,6 +53,10 @@ data class MovieUiModel(
     // Nama sutradara.
     val director: String
         get() = film.sutradara
+
+    // Label informasi pembuat film untuk UI.
+    val creatorLabel: String
+        get() = "Sutradara: $director"
 
     // Format durasi: contoh 2 jam 49 menit.
     val durationText: String
