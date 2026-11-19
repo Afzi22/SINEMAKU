@@ -4,9 +4,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-// ==========================================
+// 
 // LOKASI MODEL DOMAIN FAWWAZ
-// ==========================================
+// 
 
 // Root project Android:
 // D:/Android Studio/Project/Cinemaku/android-app
@@ -28,15 +28,15 @@ println(
             sharedModelDirectory.absolutePath
 )
 
-// ==========================================
+// 
 // KONFIGURASI ANDROID
-// ==========================================
+// 
 
 android {
 
     namespace = "com.example.sinemaku"
 
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
 
@@ -80,7 +80,7 @@ android {
         compose = true
     }
 
-<<<<<<< HEAD
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21  // ✅ ubah dari VERSION_11
         targetCompatibility = JavaVersion.VERSION_21  // ✅ ubah dari VERSION_11
@@ -88,10 +88,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "21"  // ✅ ubah dari "11"
-=======
-    // ======================================
+
+    // ===
     // SOURCE SET MODEL FAWWAZ
-    // ======================================
+    // ===
 
     sourceSets {
 
@@ -99,21 +99,21 @@ android {
 
             java.srcDir(sharedModelDirectory)
         }
->>>>>>> f211c941e4f54fb0984abc5a408216e4babbc737
+
     }
 }
 
-// ==========================================
+// 
 // KONFIGURASI KOTLIN
-// ==========================================
+// 
 
 kotlin {
     jvmToolchain(17)
 }
 
-// ==========================================
+// 
 // DEPENDENCIES
-// ==========================================
+// 
 
 dependencies {
 
@@ -122,12 +122,12 @@ dependencies {
         "androidx.core:core-ktx:1.15.0"
     )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
     implementation(libs.material.icons.extended)
-=======
-=======
->>>>>>> f211c941e4f54fb0984abc5a408216e4babbc737
+
+
+
     implementation(
         "androidx.compose.material:material-icons-extended"
     )
@@ -140,10 +140,8 @@ dependencies {
     implementation(
         "androidx.activity:activity-compose:1.10.1"
     )
-<<<<<<< HEAD
->>>>>>> 4ec6675e758aab2dfc0be0a5955fc6f7725089f4
-=======
->>>>>>> f211c941e4f54fb0984abc5a408216e4babbc737
+
+
 
     // Compose BOM
     implementation(
