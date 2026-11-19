@@ -49,7 +49,22 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
 
+<<<<<<< HEAD
     implementation(libs.material.icons.extended)
+=======
+    implementation(
+        "androidx.compose.material:material-icons-extended"
+    )
+
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
+
+    implementation("androidx.media3:media3-ui:1.8.0")
+
+    // Activity Compose
+    implementation(
+        "androidx.activity:activity-compose:1.10.1"
+    )
+>>>>>>> 4ec6675e758aab2dfc0be0a5955fc6f7725089f4
 
     implementation(libs.media3.common)
     implementation(libs.media3.exoplayer)
