@@ -1,80 +1,55 @@
-
 package com.example.sinemaku.ui.model
 
 import model.Film
+import model.Serial
+import model.Dokumenter
 
-object MovieSampleData {
-
-    val movies: List<MovieUiModel> = listOf(
-
-        MovieUiModel(
-            film = Film(
-                id = "FILM-001",
-                judul = "Interstellar",
-                tahunRilis = 2014,
-                genre = listOf("Sci-Fi", "Adventure"),
-                durasiMenit = 169,
-                sutradara = "Christopher Nolan"
-            ),
-            rating = 8.7,
-            posterName = "poster_interstellar",
-            synopsis = "Sekelompok penjelajah melakukan perjalanan luar angkasa untuk mencari planet yang dapat menjadi tempat tinggal baru bagi manusia."
+/** Data demo lokal; nantinya diganti sumber data milik tim. */
+object TayanganSampleData {
+    val items: List<TayanganUiModel> = listOf(
+        TayanganUiModel(
+            Film("FILM-001", "Interstellar", 2014, listOf("Sci-Fi", "Adventure"), 169, "Christopher Nolan"),
+            8.7, "poster_interstellar", "Sekelompok penjelajah melakukan perjalanan antariksa untuk mencari harapan baru bagi manusia."
         ),
-
-        MovieUiModel(
-            film = Film(
-                id = "FILM-002",
-                judul = "Inception",
-                tahunRilis = 2010,
-                genre = listOf("Sci-Fi", "Thriller"),
-                durasiMenit = 148,
-                sutradara = "Christopher Nolan"
-            ),
-            rating = 8.8,
-            posterName = "poster_inception",
-            synopsis = "Seorang pencuri profesional memasuki mimpi orang lain untuk mencuri informasi dan menjalankan misi yang sangat berbahaya."
+        TayanganUiModel(
+            Film("FILM-002", "Inception", 2010, listOf("Sci-Fi", "Thriller"), 148, "Christopher Nolan"),
+            8.8, "poster_inception", "Seorang ahli infiltrasi mimpi mendapat misi menanamkan ide ke alam bawah sadar."
         ),
-
-        MovieUiModel(
-            film = Film(
-                id = "FILM-003",
-                judul = "The Dark Knight",
-                tahunRilis = 2008,
-                genre = listOf("Action", "Crime"),
-                durasiMenit = 152,
-                sutradara = "Christopher Nolan"
-            ),
-            rating = 9.0,
-            posterName = "poster_dark_knight",
-            synopsis = "Batman menghadapi Joker, seorang penjahat yang menciptakan kekacauan di Gotham City."
+        TayanganUiModel(
+            Film("FILM-003", "The Dark Knight", 2008, listOf("Action", "Crime"), 152, "Christopher Nolan"),
+            9.0, "poster_dark_knight", "Batman menghadapi ancaman Joker yang mengguncang Gotham City."
         ),
-
-        MovieUiModel(
-            film = Film(
-                id = "FILM-004",
-                judul = "Dune",
-                tahunRilis = 2021,
-                genre = listOf("Sci-Fi", "Adventure"),
-                durasiMenit = 155,
-                sutradara = "Denis Villeneuve"
-            ),
-            rating = 8.0,
-            posterName = "poster_dune",
-            synopsis = "Paul Atreides menghadapi konflik politik dan perebutan kekuasaan di planet gurun Arrakis."
+        TayanganUiModel(
+            Film("FILM-004", "Dune", 2021, listOf("Sci-Fi", "Adventure"), 155, "Denis Villeneuve"),
+            8.0, "poster_dune", "Paul Atreides menghadapi takdirnya di planet gurun Arrakis."
         ),
-
-        MovieUiModel(
-            film = Film(
-                id = "FILM-005",
-                judul = "The Chronicles of Narnia: Prince Caspian",
-                tahunRilis = 2008,
-                genre = listOf("Fantasy", "Adventure"),
-                durasiMenit = 150,
-                sutradara = "Andrew Adamson"
-            ),
-            rating = 6.5,
-            posterName = "poster_narnia_prince_caspian",
-            synopsis = "Empat bersaudara Pevensie kembali ke Narnia untuk membantu Pangeran Caspian merebut kembali kerajaannya."
+        TayanganUiModel(
+            Film("FILM-005", "The Chronicles of Narnia: Prince Caspian", 2008, listOf("Fantasy", "Adventure"), 150, "Andrew Adamson"),
+            6.5, "poster_narnia_prince_caspian", "Empat saudara kembali ke Narnia untuk membantu Pangeran Caspian."
+        ),
+        TayanganUiModel(
+            Serial("SER-001", "Stranger Things", 2016, listOf("Sci-Fi", "Mystery"), 4, 34, 50),
+            8.6, "poster_stranger_things", "Sekelompok sahabat menyelidiki peristiwa aneh di kota Hawkins."
+        ),
+        TayanganUiModel(
+            Serial("SER-002", "Wednesday", 2022, listOf("Mystery", "Fantasy"), 1, 8, 50),
+            8.0, "poster_wednesday", "Wednesday Addams menyelidiki misteri saat bersekolah di Nevermore Academy."
+        ),
+        TayanganUiModel(
+            Serial("SER-003", "Dark", 2017, listOf("Sci-Fi", "Thriller"), 3, 26, 55),
+            8.7, "poster_dark_series", "Hilangnya seorang anak membuka misteri lintas generasi di sebuah kota kecil."
+        ),
+        TayanganUiModel(
+            Dokumenter("DOC-001", "Our Planet", 2019, listOf("Nature", "Education"), 50, "Keanekaragaman hayati", "David Attenborough"),
+            9.0, "poster_our_planet", "Menjelajahi keindahan alam dan tantangan yang dihadapi satwa liar."
+        ),
+        TayanganUiModel(
+            Dokumenter("DOC-002", "The Social Dilemma", 2020, listOf("Technology", "Social"), 94, "Dampak media sosial", "Berbagai narasumber"),
+            7.6, "poster_social_dilemma", "Mengulas pengaruh platform media sosial terhadap perilaku manusia."
+        ),
+        TayanganUiModel(
+            Dokumenter("DOC-003", "My Octopus Teacher", 2020, listOf("Nature", "Education"), 85, "Kehidupan gurita", "Craig Foster"),
+            8.1, "poster_my_octopus_teacher", "Hubungan unik seorang penyelam dengan gurita di lautan Afrika Selatan."
         )
     )
 }
