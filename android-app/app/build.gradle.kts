@@ -7,204 +7,109 @@ plugins {
 // 
 // LOKASI MODEL DOMAIN FAWWAZ
 // 
+val sharedModelDirectory = rootProject.file("../src/main/kotlin/model")
 
-// Root project Android:
-// D:/Android Studio/Project/Cinemaku/android-app
-//
-// Folder model Fawwaz:
-// D:/Android Studio/Project/Cinemaku/src/main/kotlin/model
-
-val sharedModelDirectory =
-    rootProject.file("../src/main/kotlin/model")
-
-// Memastikan folder model tersedia.
 check(sharedModelDirectory.isDirectory) {
-    "Folder model Fawwaz tidak ditemukan: " +
-            sharedModelDirectory.absolutePath
+    "Folder model Fawwaz tidak ditemukan: " + sharedModelDirectory.absolutePath
 }
 
-println(
-    "SINEMAKU shared model: " +
-            sharedModelDirectory.absolutePath
-)
+println("SINEMAKU shared model: " + sharedModelDirectory.absolutePath)
 
-// 
+//
 // KONFIGURASI ANDROID
-// 
-
+//
 android {
-
     namespace = "com.example.sinemaku"
-
     compileSdk = 35
 
     defaultConfig {
-
         applicationId = "com.example.sinemaku"
-
         minSdk = 24
-        targetSdk = 36
-
+        targetSdk = 35 // Disamakan dengan compileSdk agar kompatibel dengan library media3
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner =
-            "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-
         release {
-
             isMinifyEnabled = false
-
             proguardFiles(
-                getDefaultProguardFile(
-                    "proguard-android-optimize.txt"
-                ),
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
 
+    // Konsolidasi compileOptions (Hanya satu blok, versi 17 agar stabil)
     compileOptions {
-
-        sourceCompatibility =
-            JavaVersion.VERSION_17
-
-        targetCompatibility =
-            JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {
         compose = true
     }
 
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21  // ✅ ubah dari VERSION_11
-        targetCompatibility = JavaVersion.VERSION_21  // ✅ ubah dari VERSION_11
-    }
-
     kotlinOptions {
-        jvmTarget = "21"  // ✅ ubah dari "11"
+        jvmTarget = "17" // Disamakan dengan VERSION_17
+    }
 
     // ===
     // SOURCE SET MODEL FAWWAZ
     // ===
-
     sourceSets {
-
         getByName("main") {
-
             java.srcDir(sharedModelDirectory)
         }
-
     }
 }
 
-// 
+//
 // KONFIGURASI KOTLIN
-// 
-
+//
 kotlin {
     jvmToolchain(17)
 }
 
-// 
+//
 // DEPENDENCIES
-// 
-
+//
 dependencies {
-
     // Android Core
-    implementation(
-        "androidx.core:core-ktx:1.15.0"
-    )
-
-
-
-    implementation(libs.material.icons.extended)
-
-
-
-    implementation(
-        "androidx.compose.material:material-icons-extended"
-    )
-
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-
-    implementation("androidx.media3:media3-ui:1.8.0")
-
-    // Activity Compose
-    implementation(
-        "androidx.activity:activity-compose:1.10.1"
-    )
-
-
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0")
 
     // Compose BOM
-    implementation(
-        platform(
-            "androidx.compose:compose-bom:2025.04.01"
-        )
-    )
+    implementation(platform("androidx.compose:compose-bom:2025.04.01"))
 
-    // Compose UI
-    implementation(
-        "androidx.compose.ui:ui"
-    )
-
-    implementation(
-        "androidx.compose.ui:ui-tooling-preview"
-    )
-
-    // Compose Foundation
-    implementation(
-        "androidx.compose.foundation:foundation"
-    )
+    // Compose UI & Foundation
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.foundation:foundation")
 
     // Material Design 3
-    implementation(
-        "androidx.compose.material3:material3"
-    )
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.material.icons.extended)
 
-    // Lifecycle
-    implementation(
-        "androidx.lifecycle:lifecycle-runtime-ktx:2.9.0"
-    )
+    // Media3 (ExoPlayer)
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
+    implementation("androidx.media3:media3-ui:1.8.0")
 
     // Unit Testing
-    testImplementation(
-        "junit:junit:4.13.2"
-    )
+    testImplementation("junit:junit:4.13.2")
 
     // Android Testing
-    androidTestImplementation(
-        "androidx.test.ext:junit:1.2.1"
-    )
-
-    androidTestImplementation(
-        "androidx.test.espresso:espresso-core:3.6.1"
-    )
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
     // Compose UI Testing
-    androidTestImplementation(
-        platform(
-            "androidx.compose:compose-bom:2025.04.01"
-        )
-    )
-
-    androidTestImplementation(
-        "androidx.compose.ui:ui-test-junit4"
-    )
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.04.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     // Compose Debugging
-    debugImplementation(
-        "androidx.compose.ui:ui-tooling"
-    )
-
-    debugImplementation(
-        "androidx.compose.ui:ui-test-manifest"
-    )
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
