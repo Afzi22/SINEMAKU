@@ -6,7 +6,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -33,8 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sinemaku.ui.model.MovieSampleData
-import com.example.sinemaku.ui.model.MovieUiModel
+import com.example.sinemaku.ui.model.TayanganSampleData
+import com.example.sinemaku.ui.model.TayanganUiModel
 
 private val Bg = Color(0xFF101116)
 private val Panel = Color(0xFF1B1D27)
@@ -73,7 +71,7 @@ private enum class Tab(val label: String) {
 
 @Composable
 private fun SinemakuApp() {
-    val movies = remember { MovieSampleData.movies }
+    val movies = remember { TayanganSampleData.items }
     var tab by rememberSaveable { mutableStateOf(Tab.HOME) }
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     var playingId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -226,7 +224,7 @@ private fun Header(subtitle: String = "Temukan tontonan favoritmu") {
 }
 
 @Composable
-private fun Poster(movie: MovieUiModel, modifier: Modifier = Modifier) {
+private fun Poster(movie: TayanganUiModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val resource = remember(movie.posterName) {
         context.resources.getIdentifier(
@@ -264,7 +262,7 @@ private fun Poster(movie: MovieUiModel, modifier: Modifier = Modifier) {
 
 @Composable
 private fun HomeScreen(
-    movies: List<MovieUiModel>,
+    movies: List<TayanganUiModel>,
     onOpen: (String) -> Unit,
     watchlist: List<String>,
     onToggle: (String) -> Unit
@@ -450,7 +448,7 @@ private fun SectionTitle(title: String) {
 
 @Composable
 private fun PosterCard(
-    movie: MovieUiModel,
+    movie: TayanganUiModel,
     modifier: Modifier = Modifier,
     onOpen: (String) -> Unit
 ) {
@@ -491,7 +489,7 @@ private fun PosterCard(
 
 @Composable
 private fun BrowseScreen(
-    movies: List<MovieUiModel>,
+    movies: List<TayanganUiModel>,
     onOpen: (String) -> Unit,
     watchlist: List<String>,
     onToggle: (String) -> Unit
@@ -627,7 +625,7 @@ private fun BrowseScreen(
 private fun CollectionScreen(
     title: String,
     subtitle: String,
-    movies: List<MovieUiModel>,
+    movies: List<TayanganUiModel>,
     empty: String,
     onOpen: (String) -> Unit,
     onRemove: (String) -> Unit
@@ -740,7 +738,7 @@ private fun MoreScreen() {
 
 @Composable
 private fun DetailScreen(
-    movie: MovieUiModel,
+    movie: TayanganUiModel,
     saved: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit,
@@ -827,16 +825,13 @@ private fun DetailScreen(
                                 Icons.Default.BookmarkBorder,
                             null
                         )
-
                         Spacer(Modifier.width(5.dp))
-
                         Text(if (saved) "Tersimpan" else "Watchlist")
                     }
                 }
 
                 if (notice) {
                     Spacer(Modifier.height(10.dp))
-
                     Text(
                         "Trailer belum tersedia untuk tayangan ini.",
                         color = Gold,
@@ -845,15 +840,8 @@ private fun DetailScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
-
-                Text(
-                    "Sinopsis",
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
+                Text("Sinopsis", fontSize = 19.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
-
                 Text(
                     movie.synopsis,
                     color = Color(0xFFDBDCE3),
