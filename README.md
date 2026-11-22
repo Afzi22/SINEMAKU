@@ -10,12 +10,12 @@ Aplikasi katalog film berbasis CLI yang dibangun menggunakan **Kotlin** dengan p
 
 | Nama   | NIM        | Peran                          |
 |--------|------------|-------------------------------|
-| Agisna | 2XXXXXXX   | Project Lead / Arsitek         |
-| Fawwaz | 2XXXXXXX   | Domain Developer (`model/`)    |
-| Miftah | 2XXXXXXX   | Business Logic (`service/`)    |
-| Anida  | 2XXXXXXX   | UI/CLI Developer (`Main.kt`)   |
-| Maula  | 2XXXXXXX   | QA + Data & Persistence        |
-| Apip   | 2XXXXXXX   | DevOps                         |
+| Agisna | 225443028   | Project Lead / Arsitek         |
+| Fawwaz | 225443034   | Domain Developer (`model/`)    |
+| Miftah | 225443039   | Business Logic (`service/`)    |
+| Anida  | 225443029   | UI/CLI Developer (`Main.kt`)   |
+| Maula  | 225443038   | QA + Data & Persistence        |
+| Apip   | 2254430XX   | DevOps                         |
 
 ---
 

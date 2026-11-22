@@ -1,23 +1,19 @@
-
 package com.example.sinemaku.ui.model
 
+import model.Tayangan
 import model.Film
+import model.Serial
+import model.Dokumenter
 
-/**
- * Model khusus tampilan Android SINEMAKU.
- *
- * Data utama film berasal dari model domain
- * yang dibuat oleh Fawwaz.
- *
- * Rating, poster, dan sinopsis merupakan
- * informasi tambahan untuk kebutuhan UI.
- */
-data class MovieUiModel(
-    val film: Film,
+/** Adapter UI: satu bentuk tampilan untuk seluruh subclass Tayangan. */
+data class TayanganUiModel(
+    val tayangan: Tayangan,
     val rating: Double,
     val posterName: String,
     val synopsis: String
 ) {
+<<<<<<< HEAD
+<<<<<<< HEAD
 
     // ID resmi dari model domain.
     val id: String
@@ -74,4 +70,34 @@ data class MovieUiModel(
     // Rating yang siap ditampilkan pada UI.
     val ratingText: String
         get() = "$rating / 10"
+=======
+=======
+>>>>>>> f211c941e4f54fb0984abc5a408216e4babbc737
+    val id: String get() = tayangan.id
+    val title: String get() = tayangan.judul
+    val year: Int get() = tayangan.tahunRilis
+    val genres: List<String> get() = tayangan.genre
+    val genreText: String get() = genres.joinToString(", ")
+    val category: String get() = when (tayangan) {
+        is Film -> "Film"
+        is Serial -> "Serial TV"
+        is Dokumenter -> "Dokumenter"
+        else -> tayangan.kategori()
+    }
+    val durationText: String get() {
+        val minutes = tayangan.totalMenit()
+        val hours = minutes / 60
+        val rest = minutes % 60
+        return if (hours > 0) "$hours jam $rest menit" else "$rest menit"
+    }
+    val creatorLabel: String get() = when (val t = tayangan) {
+        is Film -> "Sutradara: ${t.sutradara}"
+        is Serial -> "${t.jumlahMusim} musim • ${t.jumlahEpisode} episode • ${t.menitPerEpisode} menit/episode"
+        is Dokumenter -> "Topik: ${t.topik} • Narator: ${t.narator}"
+        else -> ""
+    }
+<<<<<<< HEAD
+>>>>>>> 4ec6675e758aab2dfc0be0a5955fc6f7725089f4
+=======
+>>>>>>> f211c941e4f54fb0984abc5a408216e4babbc737
 }
